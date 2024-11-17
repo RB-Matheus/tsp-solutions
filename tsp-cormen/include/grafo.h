@@ -1,6 +1,8 @@
 #ifndef GRAFO_H
 #define GRAFO_H
 
+#include "heap_min_fp.h"
+
 typedef struct No No;
 typedef struct Vertice Vertice;
 typedef struct Grafo Grafo;
@@ -29,5 +31,7 @@ No *criar_no_adjacente(int vertice, double peso);
 int aresta_existe(Grafo *g, int u, int v);
 void inserir_aresta(Grafo *g, int u, int v, double peso);
 void exibir_lista_adjacencia(Grafo *g);
+
+Vertice **prim(Grafo *g, int r);
 
 #endif

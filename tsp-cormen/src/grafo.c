@@ -106,3 +106,8 @@ void exibir_lista_adjacencia(Grafo *g) {
     	printf("\n\n");
 	}
 }
+
+
+// implementação do algoritmo de Prim
+
+// implementação do percurso em pré-ordem

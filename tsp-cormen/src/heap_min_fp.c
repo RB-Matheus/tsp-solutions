@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <float.h> // DBL_MAX, imprimir com %e
-#include "../include/heap_min_fp.h"
+//#include "../include/heap_min_fp.h"
 #include "../include/grafo.h"
 
 

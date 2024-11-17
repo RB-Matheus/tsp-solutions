@@ -2,7 +2,8 @@
 #define HEAP_MIN_FP_H
 
 #include <math.h>
-#include "grafo.h"
+typedef struct Grafo Grafo;
+typedef struct Vertice Vertice;
 
 #define parent(i) ((i == 0) ? -1 : (int) floor((i - 1) / 2))
 #define left(i) (2 * i + 1) 
