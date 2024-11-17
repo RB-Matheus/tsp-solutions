@@ -6,16 +6,18 @@
 
 int main(void) {
     int u, v, r, qtd_vertices;
-    double xu, xv, yu, yv;
+    double peso;
 
     fscanf(stdin, "%d %d", &qtd_vertices, &r);
     Grafo *g = criar_grafo(qtd_vertices);
 
-    while (fscanf(stdin, "%d %lf %lf %d %lf %lf", &u, &xu, &yu, &v, &xv, &yv) != EOF) {
-        inserir_aresta(g, u, v, sqrt(pow(xv - xu, 2) + pow(yv - yu, 2)));
+    while (fscanf(stdin, "%d %d %lf", &u, &v, &peso) != EOF) {
+        inserir_aresta(g, u, v, peso);
     }
 
+    prim(g, r);
     exibir_lista_adjacencia(g);
+    exibir_resumo(g);
     desalocar_grafo(g);
     return EXIT_SUCCESS;
 }
@@ -27,7 +29,8 @@ int main(void) {
 // - Ter só arestas de peso não negativo
 
 // < COMO COMPILAR >
-// gcc src/main.c src/grafo.c -o bin/m -Iinclude -lm -Wall -Wextra
+// gcc src/main.c src/grafo.c src/heap_min_fp.c -o bin/m -Iinclude -lm -Wall -Wextra
 
 // < COMO EXECUTAR >
-// cat tests/test.graph | bin/m
+// cat tests/test1.graph | bin/m
+// cat tests/test2.graph | bin/m

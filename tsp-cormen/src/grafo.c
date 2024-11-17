@@ -1,5 +1,6 @@
 #include <math.h>
 #include "../include/grafo.h"
+#include "../include/heap_min_fp.h"
 #include <stdio.h>
 #include <limits.h>
 #include <stdlib.h>
@@ -107,7 +108,55 @@ void exibir_lista_adjacencia(Grafo *g) {
 	}
 }
 
+void exibir_resumo(Grafo *g) {
+    printf("Vértice  | Chave (d)                  | Pai (pi)\n");
+    printf("---------|----------------------------|---------\n");
 
-// implementação do algoritmo de Prim
+	double peso_total = 0;
+    for (int i = 0; i < g->qtd_vertices; i++) {
+        printf("%-8d | ", i);
+        printf("%-26lf | ", g->vertices[i].d); // Mostrando chave com 6 casas decimais
+        printf("%-8d\n", g->vertices[i].pai);
+		peso_total += g->vertices[i].d;
+    }
+
+	printf("\nPeso total: %lf\n", peso_total);
+}
+
+void prim(Grafo *g, int r) {
+	FilaPrioridade *Q = criar_fila_prioridade(g->qtd_vertices);
+	assert(Q != NULL);
+
+	for (int i = 0; i < g->qtd_vertices; i++) {
+		g->vertices[i].d = DBL_MAX;
+		g->vertices[i].pai = -1;
+		g->vertices[i].enfileirado = true;
+		Q->arr[i] = &g->vertices[i];
+		Q->pos[i] = i;
+	}
+
+	diminuir_chave(Q, g, r, 0);
+
+	int u = -1, v = -1;
+	while (Q->m > 0) {
+		min_heapify(Q, g, 0);
+
+		Vertice *u_vertice = extrair_minimo(Q, g);
+		u = u_vertice - g->vertices;
+		g->vertices[u].enfileirado = false;
+
+		No *adj = g->vertices[u].lista_adjacencia;
+		while (adj) {
+            v = adj->vertice;
+            if (g->vertices[v].enfileirado && adj->peso < g->vertices[v].d) {
+				g->vertices[v].pai = u;				// pai(v) = u
+				diminuir_chave(Q, g, v, adj->peso); // key(v) = w(u,v)
+            }
+            adj = adj->proximo_no;
+        }
+	}
+	desalocar_fila_prioridade(Q);
+}
+
 
 // implementação do percurso em pré-ordem
