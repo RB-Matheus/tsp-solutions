@@ -1,11 +1,11 @@
 #ifndef GRAFO_H
 #define GRAFO_H
 
-#include "heap_min_fp.h"
-
 typedef struct No No;
 typedef struct Vertice Vertice;
 typedef struct Grafo Grafo;
+
+#include "heap_min_fp.h"
 
 struct No {
     int vertice;
