@@ -21,6 +21,6 @@ void desalocar_fila_prioridade(FilaPrioridade *Q);
 void trocar_vertices(FilaPrioridade *Q, Grafo *g, int i, int j);
 void min_heapify(FilaPrioridade *Q, Grafo *g, int i);
 Vertice *extrair_minimo(FilaPrioridade *Q, Grafo *g);
-void diminuir_chave(FilaPrioridade *Q, Grafo *g, int alvo, float valor);
+void diminuir_chave(FilaPrioridade *Q, Grafo *g, int alvo, double valor);
 
 #endif

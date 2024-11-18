@@ -18,6 +18,7 @@ struct Vertice {
     double d; // peso mínimo de qualquer aresta conectando este vértice a outro na árvore
     int enfileirado;
     No *lista_adjacencia;
+    No *ultimo_vizinho;
 };
 
 struct Grafo {
@@ -34,5 +35,9 @@ void exibir_lista_adjacencia(Grafo *g);
 void exibir_resumo(Grafo *g);
 
 void prim(Grafo *g, int r);
+Vertice **alocar_ciclo(int qtd_vertices);
+void realizar_percurso(Grafo *g, int raiz, Vertice **H, double *custo_total);
+void percurso_pre_ordem(Grafo *g, int vertice, Vertice **H, int *contador, double *custo_total);
+void exibir_ciclo(Grafo *g, Vertice **H, double *custo_total);
 
 #endif

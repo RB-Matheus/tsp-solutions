@@ -87,7 +87,8 @@ Vertice *extrair_minimo(FilaPrioridade *Q, Grafo *g) {
 }
 
 // i: (in) chave | value: (in) novo valor para a chave i
-void diminuir_chave(FilaPrioridade *Q, Grafo *g, int alvo, float valor) {
+void diminuir_chave(FilaPrioridade *Q, Grafo *g, int alvo, double valor) {
+    printf("Diminuindo a chave do vértice %d para %lf.\n", alvo, valor);
     int i = Q->pos[alvo];  // Obtém a posição atual na heap usando o índice do vértice no grafo
     
     if (valor < Q->arr[i]->d) {

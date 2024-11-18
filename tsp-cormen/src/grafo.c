@@ -18,8 +18,10 @@ Grafo *criar_grafo(int qtd_vertices) {
     	if (g->vertices) {
         	g->qtd_vertices = qtd_vertices;
 
-        	for (int i = 0; i < g->qtd_vertices; i++)
-            	g->vertices[i].lista_adjacencia = NULL;  	 
+        	for (int i = 0; i < g->qtd_vertices; i++) {
+            	g->vertices[i].lista_adjacencia = NULL;
+				g->vertices[i].ultimo_vizinho = NULL;
+			}  	 
         	return g;
     	}
     	free(g);
@@ -72,23 +74,32 @@ int aresta_existe(Grafo *g, int u, int v) {
 }
 
 void inserir_aresta(Grafo *g, int u, int v, double peso) {
-	if (g && !aresta_existe(g, u, v)) {
-    	No *vizinho = criar_no_adjacente(v, peso);
+    if (g && !aresta_existe(g, u, v)) {
+        No *vizinho = criar_no_adjacente(v, peso);
 
-    	if (vizinho) {
-        	// Colocando v na lista adj. de u
-        	vizinho->proximo_no = g->vertices[u].lista_adjacencia;
-        	g->vertices[u].lista_adjacencia = vizinho;
-       	 
-        	// Coloca u na lista adj. de v, porque o grafo é simples
-        	vizinho = criar_no_adjacente(u, peso);
-        	if (vizinho) {
-            	vizinho->proximo_no = g->vertices[v].lista_adjacencia;
-            	g->vertices[v].lista_adjacencia = vizinho;
-        	}
-    	}
-		printf("Aresta (%d,%d) com peso w(%d,%d) = %lf adicionada ao grafo (e sua contraparte também!).\n", u, v, u, v, peso);
-	}
+        if (vizinho) {
+            // Inserindo v na lista adj de u
+            if (g->vertices[u].ultimo_vizinho)
+                g->vertices[u].ultimo_vizinho->proximo_no = vizinho; // Já tem vizinho => atualiza o último vizinho para apontar para o novo nó
+            else 
+                g->vertices[u].lista_adjacencia = vizinho; // Lista de adjacência estava vazia
+    
+            // Atualiza o ponteiro para o último vizinho inserido
+            g->vertices[u].ultimo_vizinho = vizinho;
+
+            // Inserindo u na lista adj de v porque o grafo é não direcionado
+            vizinho = criar_no_adjacente(u, peso);
+            if (vizinho) {
+                if (g->vertices[v].ultimo_vizinho)
+                    g->vertices[v].ultimo_vizinho->proximo_no = vizinho;
+                else
+                    g->vertices[v].lista_adjacencia = vizinho;
+
+                g->vertices[v].ultimo_vizinho = vizinho;
+            }
+        }
+        printf("Aresta (%d,%d) com peso w(%d,%d) = %lf adicionada ao grafo (e sua contraparte também!).\n", u, v, u, v, peso);
+    }
 }
 
 void exibir_lista_adjacencia(Grafo *g) {
@@ -144,12 +155,14 @@ void prim(Grafo *g, int r) {
 		Vertice *u_vertice = extrair_minimo(Q, g);
 		u = u_vertice - g->vertices;
 		g->vertices[u].enfileirado = false;
+		printf("O vértice %d foi extraído da heap.\n", u);
 
 		No *adj = g->vertices[u].lista_adjacencia;
 		while (adj) {
             v = adj->vertice;
             if (g->vertices[v].enfileirado && adj->peso < g->vertices[v].d) {
 				g->vertices[v].pai = u;				// pai(v) = u
+				printf("O vértice vizinho %d agora tem pai = %d\n", v, g->vertices[v].pai);
 				diminuir_chave(Q, g, v, adj->peso); // key(v) = w(u,v)
             }
             adj = adj->proximo_no;
@@ -158,5 +171,88 @@ void prim(Grafo *g, int r) {
 	desalocar_fila_prioridade(Q);
 }
 
+/*void percurso_pre_ordem(Grafo *g, int vertice, Vertice *H, int *contador) {
+	(*contador)++;
+	H[*contador] = g->vertices[vertice];
 
-// implementação do percurso em pré-ordem
+	if (left(vertice) < g->qtd_vertices)
+		percurso_pre_ordem(g, left(vertice), H, contador);
+	
+	if (right(vertice) < g->qtd_vertices)
+		percurso_pre_ordem(g, right(vertice), H, contador);
+}
+*/
+
+// criar rotina que chama o percurso em pré-ordem e depois adiciona a raiz como último elemento de H e adiciona ao custo total o peso da aresta que liga o penúltimo e último elemento de H?
+// ajustar o exibir_ciclo para incluir seu último elemento também
+void realizar_percurso(Grafo *g, int raiz, Vertice **H, double *custo_total) {
+    if (g && H && custo_total && raiz > -1 && raiz < g->qtd_vertices) {
+		int contador = -1; // Inicia o contador do percurso
+		*custo_total = 0;
+
+		// Chama o percurso em pré-ordem a partir da raiz
+		percurso_pre_ordem(g, raiz, H, &contador, custo_total);
+
+		// Adiciona a raiz como o último elemento de H e incrementa o custo total
+		No *adj = g->vertices[H[contador] - g->vertices].lista_adjacencia;
+		while (adj) {
+			if (adj->vertice == H[0] - g->vertices) { // Conecta ao início
+				contador++;
+				H[contador] = H[0]; // Retorna à raiz
+				*custo_total += adj->peso; // Adiciona o custo da volta
+				break;
+			}
+			adj = adj->proximo_no;
+		}
+
+		if (contador == g->qtd_vertices)
+			printf("Percurso completo com sucesso, incluindo o retorno à origem.\n");
+		else
+			printf("Erro ao conectar o retorno à origem.\n");
+    }
+}
+
+void percurso_pre_ordem(Grafo *g, int vertice, Vertice **H, int *contador, double *custo_total) {
+	if (g && vertice > -1 && vertice < g->qtd_vertices && *contador >= -1) {
+		// Visita o vértice atual
+    	(*contador)++;
+    	H[*contador] = &g->vertices[vertice];
+    
+		//printf("H[%d] = %d\n", *contador, vertice); // vertice
+		//printf("H[%d] = %ld\n", *contador, &g->vertices[vertice] - g->vertices);   Imprime a mesma coisa de cima
+
+    	// Anda na lista de adjacência procurando os filhos
+    	No *atual = g->vertices[vertice].lista_adjacencia;
+		int v = -1;
+    	while (atual) {
+        	v = atual->vertice;
+
+        	// Se este vértice adjacente é filho na árvore (seu pai é o vértice atual)
+        	if (g->vertices[v].pai == vertice) {
+				printf("O vértice %d é vizinho e filho do vértice %d.\n", atual->vertice, vertice);
+				*custo_total += atual->peso;
+            	percurso_pre_ordem(g, v, H, contador, custo_total);
+			}
+
+        	atual = atual->proximo_no;
+    	}
+	}
+}
+
+Vertice **alocar_ciclo(int qtd_vertices) {
+	Vertice **H = (Vertice **) malloc((qtd_vertices + 1) * sizeof(Vertice *));
+
+	if (H)
+		return H;
+	return NULL;
+}
+
+void exibir_ciclo(Grafo *g, Vertice **H, double *custo_total) {
+	printf("\nPercurso: ");
+    for (int i = 0; i <= g->qtd_vertices; i++) {
+        printf("~> %ld ", H[i] - g->vertices);
+		//printf("~> H[%d] = %ld ", i, H[i] - g->vertices);
+	}
+	printf("\n");
+	printf("Custo total: %lf.\n", *custo_total);
+}

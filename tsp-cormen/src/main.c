@@ -16,9 +16,31 @@ int main(void) {
     }
 
     prim(g, r);
-    exibir_lista_adjacencia(g);
+
+    //exibir_lista_adjacencia(g);
+    //exibir_resumo(g);
+
+//Vértice  | Chave (d)                  | Pai (pi)
+//---------|----------------------------|---------
+//0        | 0.000000                   | -1      
+//1        | 2.000000                   | 0       
+//2        | 1.414214                   | 1       
+//3        | 1.414214                   | 4       
+//4        | 1.414214                   | 5       
+//5        | 2.000000                   | 1       
+//6        | 1.414214                   | 4       
+//7        | 2.236068                   | 1
+// Peso total: 11.892922
+
+    Vertice **H = alocar_ciclo(g->qtd_vertices);
+    double custo_total;
+    // testar se H != NULL
+    realizar_percurso(g, r, H, &custo_total);
     exibir_resumo(g);
+    exibir_ciclo(g, H, &custo_total);
+
     desalocar_grafo(g);
+    free(H);
     return EXIT_SUCCESS;
 }
 
@@ -32,5 +54,4 @@ int main(void) {
 // gcc src/main.c src/grafo.c src/heap_min_fp.c -o bin/m -Iinclude -lm -Wall -Wextra
 
 // < COMO EXECUTAR >
-// cat tests/test1.graph | bin/m
-// cat tests/test2.graph | bin/m
+// cat tests/test3.graph | bin/m
