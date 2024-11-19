@@ -74,7 +74,7 @@ int aresta_existe(Grafo *g, int u, int v) {
 }
 
 void inserir_aresta(Grafo *g, int u, int v, double peso) {
-    if (g && !aresta_existe(g, u, v)) {
+    if (g && peso > 0 && !aresta_existe(g, u, v)) {
         No *vizinho = criar_no_adjacente(v, peso);
 
         if (vizinho) {
@@ -120,7 +120,7 @@ void exibir_lista_adjacencia(Grafo *g) {
 }
 
 void exibir_resumo(Grafo *g) {
-    printf("Vértice  | Chave (d)                  | Pai (pi)\n");
+    printf("\nVértice  | Chave (d)                  | Pai (pi)\n");
     printf("---------|----------------------------|---------\n");
 
 	double peso_total = 0;
@@ -171,20 +171,6 @@ void prim(Grafo *g, int r) {
 	desalocar_fila_prioridade(Q);
 }
 
-/*void percurso_pre_ordem(Grafo *g, int vertice, Vertice *H, int *contador) {
-	(*contador)++;
-	H[*contador] = g->vertices[vertice];
-
-	if (left(vertice) < g->qtd_vertices)
-		percurso_pre_ordem(g, left(vertice), H, contador);
-	
-	if (right(vertice) < g->qtd_vertices)
-		percurso_pre_ordem(g, right(vertice), H, contador);
-}
-*/
-
-// criar rotina que chama o percurso em pré-ordem e depois adiciona a raiz como último elemento de H e adiciona ao custo total o peso da aresta que liga o penúltimo e último elemento de H?
-// ajustar o exibir_ciclo para incluir seu último elemento também
 void realizar_percurso(Grafo *g, int raiz, Vertice **H, double *custo_total) {
     if (g && H && custo_total && raiz > -1 && raiz < g->qtd_vertices) {
 		int contador = -1; // Inicia o contador do percurso
@@ -204,11 +190,6 @@ void realizar_percurso(Grafo *g, int raiz, Vertice **H, double *custo_total) {
 			}
 			adj = adj->proximo_no;
 		}
-
-		if (contador == g->qtd_vertices)
-			printf("Percurso completo com sucesso, incluindo o retorno à origem.\n");
-		else
-			printf("Erro ao conectar o retorno à origem.\n");
     }
 }
 
